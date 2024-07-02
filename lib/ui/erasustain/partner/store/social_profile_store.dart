@@ -1,9 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_demo_structure/core/exceptions/app_exceptions.dart';
-import 'package:flutter_demo_structure/core/locator/locator.dart';
-import 'package:flutter_demo_structure/data/model/response/social_profile_details.dart';
-import 'package:flutter_demo_structure/data/model/response/social_profile_response_model.dart';
-import 'package:flutter_demo_structure/data/repository_impl/auth_repo_impl.dart';
+import 'package:Erasustain/core/exceptions/app_exceptions.dart';
+import 'package:Erasustain/core/locator/locator.dart';
+import 'package:Erasustain/data/model/response/social_profile_response.dart';
+import 'package:Erasustain/data/repository_impl/auth_repo_impl.dart';
 import 'package:mobx/mobx.dart';
 part 'social_profile_store.g.dart';
 
@@ -12,18 +11,19 @@ class SocialProfileResponseStore = _SocialProfileResponseStoreBase
 
 abstract class _SocialProfileResponseStoreBase with Store {
   @observable
-  bool? isLoading;
+  bool isLoading = false;
 
   @observable
   String? errorMsg;
 
   @observable
-  SocialProfileDetails? profileResponse;
+  SocialProfileResponse? profileResponse;
 
   @action
   Future<void> getSocialProfileInfo(Map<String, dynamic> data) async {
+    profileResponse = null;
     try {
-      errorMsg = '';
+      errorMsg = null;
       isLoading = true;
       profileResponse = await authRepo.getSocialProfileInfo(data);
       print(profileResponse!.message);

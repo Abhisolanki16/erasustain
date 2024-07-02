@@ -1,12 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_demo_structure/core/api/api_end_points.dart';
-import 'package:flutter_demo_structure/core/api/base_response/base_response.dart';
-import 'package:flutter_demo_structure/data/model/request/login_request_model.dart';
-import 'package:flutter_demo_structure/data/model/request/otp_request_model.dart';
-import 'package:flutter_demo_structure/data/model/response/otp_response.dart';
-import 'package:flutter_demo_structure/data/model/response/social_profile_details.dart';
-import 'package:flutter_demo_structure/data/model/response/user_profile_response.dart';
-import 'package:flutter_demo_structure/data/model/response/social_profile_response_model.dart';
+import 'package:Erasustain/core/api/api_end_points.dart';
+import 'package:Erasustain/core/api/base_response/base_response.dart';
+import 'package:Erasustain/data/model/request/login_request_model.dart';
+import 'package:Erasustain/data/model/request/otp_request_model.dart';
+import 'package:Erasustain/data/model/response/otp_response.dart';
+import 'package:Erasustain/data/model/response/social_profile_response.dart';
+import 'package:Erasustain/data/model/response/user_profile_response.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../model/response/log_out_response.dart';
@@ -27,6 +26,6 @@ abstract class AuthApi {
   Future<OtpResponse> sendOtpRequest(@Body() OtpRequestModel otpRequest);
 
   @POST(APIEndPoints.socialProfile)
-  Future<SocialProfileDetails> getSocialProfileInfo(
+  Future<SocialProfileResponse> getSocialProfileInfo(
       @Body() Map<String, dynamic> data);
 }

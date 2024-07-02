@@ -1,4 +1,4 @@
-import 'package:flutter_demo_structure/generated/l10n.dart';
+import 'package:Erasustain/generated/l10n.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
 final MultiValidator nameValidator = MultiValidator([

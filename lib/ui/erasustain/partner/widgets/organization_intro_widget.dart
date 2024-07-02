@@ -1,9 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:Erasustain/generated/assets.dart';
+import 'package:Erasustain/values/colors.dart';
+import 'package:Erasustain/values/extensions/widget_ext.dart';
+import 'package:Erasustain/values/style.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_demo_structure/generated/assets.dart';
-import 'package:flutter_demo_structure/values/colors.dart';
-import 'package:flutter_demo_structure/values/extensions/widget_ext.dart';
-import 'package:flutter_demo_structure/values/style.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OrganizationIntro extends StatelessWidget {
@@ -22,20 +22,41 @@ class OrganizationIntro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 30.h, bottom: 15.h),
+      // margin: EdgeInsets.only(top: 30.h, bottom: 15.h),
       child: Column(
         children: [
           Row(
             children: [
-              Container(
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(10.r)),
-                  child: Image.asset(
-                    img,
-                    height: 60.h,
-                    width: 60.w,
-                    fit: BoxFit.cover,
-                  )),
+              // Container(
+              //     decoration:
+              //         BoxDecoration(borderRadius: BorderRadius.circular(10.r)),
+              //     child: Image.asset(
+              //       img,
+              //       height: 60.h,
+              //       width: 60.w,
+              //       fit: BoxFit.cover,
+              //     )),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10.r),
+                child: CachedNetworkImage(
+                  imageUrl: img,
+                  height: 60.h,
+                  width: 60.w,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.r),
+                        color: Colors.grey.shade100),
+                    child: Icon(
+                      Icons.error,
+                    ),
+                  ),
+                ),
+              ),
               Flexible(
                 fit: FlexFit.tight,
                 child: Column(
@@ -43,11 +64,11 @@ class OrganizationIntro extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(
+                        Flexible(
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 15.w),
+                            padding: EdgeInsets.only(left: 15.w, right: 10.w),
                             child: Text(
                               orgName,
                               maxLines: 2,
@@ -62,8 +83,6 @@ class OrganizationIntro extends StatelessWidget {
                           height: 15.h,
                           width: 15.w,
                           fit: BoxFit.cover,
-                        ).wrapPaddingOnly(
-                          left: 8.w,
                         )
                       ],
                     ),
@@ -74,33 +93,44 @@ class OrganizationIntro extends StatelessWidget {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.r),
                           color: AppColor.lessWhite),
-                      child: Text(
-                        mutuals,
-                        style: w70012.copyWith(
-                            color: AppColor.originalBlack.withOpacity(0.3)),
-                      ),
+                      child: RichText(
+                          text: TextSpan(children: [
+                        TextSpan(
+                            text: mutuals,
+                            style: w70012.copyWith(
+                                fontFamily: 'fraunces',
+                                color:
+                                    AppColor.originalBlack.withOpacity(0.4))),
+                        TextSpan(
+                            text: ' mutuals including Karan',
+                            style: w40012.copyWith(
+                                fontFamily: 'fraunces',
+                                color: AppColor.originalBlack.withOpacity(0.4)))
+                      ])),
                     )
                   ],
                 ),
               )
             ],
           ),
+          30.verticalSpace,
           Container(
-              margin: EdgeInsets.symmetric(
-                vertical: 15.h,
-              ),
+              // margin: EdgeInsets.only(
+              //   top: 15.h,
+              // ),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'About us:',
-                      style: w70012.copyWith(
-                          color: AppColor.originalBlack, fontSize: 14.spMin),
-                    ),
-                    Text(about,
-                        style: w40012.copyWith(
-                            color: AppColor.originalBlack.withOpacity(0.7))),
-                  ]))
+                Text(
+                  'About us:',
+                  style: w70012.copyWith(
+                      color: AppColor.originalBlack.withOpacity(0.8),
+                      fontSize: 14.spMin),
+                ).wrapPaddingBottom(5.h),
+                Text(about,
+                    style: w40012.copyWith(
+                        color: AppColor.originalBlack.withOpacity(0.7))),
+              ]))
         ],
       ),
     );

@@ -1,7 +1,7 @@
+import 'package:Erasustain/generated/assets.dart';
+import 'package:Erasustain/values/colors.dart';
+import 'package:Erasustain/values/style.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_structure/generated/assets.dart';
-import 'package:flutter_demo_structure/values/colors.dart';
-import 'package:flutter_demo_structure/values/style.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SocialMediaButton extends StatelessWidget {
@@ -20,33 +20,28 @@ class SocialMediaButton extends StatelessWidget {
           color: AppColor.splashGreen.withOpacity(0.15),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(children: [
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 5.w),
-                child: Image.asset(
-                  Assets.assetsImageCall,
-                  height: 12.h,
-                  width: 12.w,
-                ),
+              Image.asset(
+                Assets.assetsImageCall,
+                height: 12.h,
+                width: 12.w,
               ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 5.w),
-                child: Image.asset(
-                  Assets.assetsImageMsg,
-                  height: 12.h,
-                  width: 12.w,
-                ),
+              7.horizontalSpace,
+              Image.asset(
+                Assets.assetsImageMsg,
+                height: 12.h,
+                width: 12.w,
               ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 5.w),
-                child: Image.asset(
-                  Assets.assetsImageWp,
-                  height: 12.h,
-                  width: 12.w,
-                ),
+              7.horizontalSpace,
+              Image.asset(
+                Assets.assetsImageWp,
+                height: 12.h,
+                width: 12.w,
               )
             ]),
+            5.verticalSpace,
             Text(
               'contact',
               style: w60012.copyWith(color: AppColor.splashGreen),

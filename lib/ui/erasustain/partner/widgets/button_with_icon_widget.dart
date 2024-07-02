@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ButtonWithIcon extends StatelessWidget {
   final void Function()? onTap;
@@ -28,27 +29,29 @@ class ButtonWithIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return Container(
+      height: 38.0,
+      width: width,
+      alignment: Alignment.center,
+      margin: margin,
+      padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: buttonColor,
+        borderRadius: BorderRadius.circular(15.0),
+      ),
       clipBehavior: Clip.hardEdge,
-      color: Colors.transparent,
-      child: Ink(
-        child: InkWell(
-          onTap: onTap,
-          child: Container(
-            height: 38.0,
-            width: width,
-            margin: margin,
-            decoration: BoxDecoration(
-              color: buttonColor,
-              borderRadius: BorderRadius.circular(15.0),
-            ),
+      child: Material(
+        color: Colors.transparent,
+        child: Ink(
+          child: InkWell(
+            onTap: onTap,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(text, style: style),
                 Container(
-                  margin: EdgeInsets.only(left: 5.0),
-                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+                  margin: EdgeInsets.only(left: 7.0.w),
+                  // padding: EdgeInsets.symmetric(horizontal: 10.0),
                   child:
                       Image.asset(icon, height: iconHeight, width: iconWidth),
                 )

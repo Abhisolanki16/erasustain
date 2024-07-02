@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_structure/values/colors.dart';
+import 'package:Erasustain/values/colors.dart';
 
 class CustomDotsIndicator extends StatelessWidget {
   final int currentIndex;

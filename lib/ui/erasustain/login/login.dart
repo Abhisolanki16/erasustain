@@ -1,16 +1,18 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+import 'package:Erasustain/widget/show_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_demo_structure/core/db/app_db.dart';
-import 'package:flutter_demo_structure/data/model/request/otp_request_model.dart';
-import 'package:flutter_demo_structure/generated/l10n.dart';
-import 'package:flutter_demo_structure/router/app_router.dart';
-import 'package:flutter_demo_structure/ui/erasustain/login/store/otp_store.dart';
-import 'package:flutter_demo_structure/values/export.dart';
-import 'package:flutter_demo_structure/values/extensions/widget_ext.dart';
-import 'package:flutter_demo_structure/widget/show_message.dart';
+import 'package:Erasustain/core/db/app_db.dart';
+import 'package:Erasustain/data/model/request/otp_request_model.dart';
+import 'package:Erasustain/generated/assets.dart';
+import 'package:Erasustain/generated/l10n.dart';
+import 'package:Erasustain/router/app_router.dart';
+import 'package:Erasustain/ui/erasustain/login/store/otp_store.dart';
+import 'package:Erasustain/values/export.dart';
+import 'package:Erasustain/values/extensions/widget_ext.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl_phone_field/country_picker_dialog.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 @RoutePage()
 class TestLoginPage extends StatefulWidget {
@@ -36,32 +38,21 @@ class _TestLoginPageState extends State<TestLoginPage> {
         statusBarIconBrightness: Brightness.dark));
   }
 
-  String validatePhoneNumber(String phone) {
-    String error = 'Success';
-    if (phone.isEmpty) {
-      error = 'Mobile number is required';
-    } else if (phone.length != 10) {
-      error = 'Mobile number must have 10 digits';
-    }
-    return error;
-  }
-
   @override
   void dispose() {
-    super.dispose();
     mobile.dispose();
+    isValid.dispose();
+    super.dispose();
+  }
+
+  void validatePhoneNumber() async {
+    if (isValid.value) {
+      sendRequest();
+      mobile.clear();
+    }
   }
 
   Future<void> sendRequest() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    print(androidInfo.version.release);
-    print(androidInfo.manufacturer);
-    print(androidInfo.brand);
-    print(androidInfo.version.baseOS);
-    print(androidInfo.type);
-    print(androidInfo.model);
-
     var otpRequest = OtpRequestModel(
             appVersion: '13',
             countryCode: '91',
@@ -76,11 +67,12 @@ class _TestLoginPageState extends State<TestLoginPage> {
     var data = OtpRequestModel.fromJson(otpRequest);
     await otpResponseStore.getOtpResponse(data).then((value) {
       if (otpResponseStore.otpResponse!.code == 10) {
-        print(otpResponseStore.otpResponse!.data.userDetail.token);
+        // showMessage(otpResponseStore.otpResponse!.data.otp);
         var token = otpResponseStore.otpResponse!.data.userDetail.token;
         appDB.token = token;
+        print(token);
         appDB.isLogin = true;
-        context.router.push(PartnerDetailsRoute());
+        context.router.replace(PartnerDetailsRoute());
       } else {
         print(otpResponseStore.otpResponse!.code);
       }
@@ -95,6 +87,7 @@ class _TestLoginPageState extends State<TestLoginPage> {
       resizeToAvoidBottomInset: true,
       backgroundColor: AppColor.textBackgroundColor,
       body: SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Stack(
           children: [
             Positioned(
@@ -118,7 +111,7 @@ class _TestLoginPageState extends State<TestLoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    margin: EdgeInsets.only(top: 120.h),
+                    margin: EdgeInsets.only(top: 100.h),
                     alignment: Alignment.center,
                     padding: EdgeInsets.symmetric(horizontal: 40.w),
                     child: Text(
@@ -134,45 +127,55 @@ class _TestLoginPageState extends State<TestLoginPage> {
                       margin: EdgeInsets.only(top: 40.h),
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                              image: AssetImage('assets/image/women.png'),
+                              image: AssetImage(Assets.assetsImageWomen),
                               fit: BoxFit.cover)),
                     ),
                   ),
                   50.verticalSpace,
                   Text(
                     S.of(context).mobileNo,
-                    style: w60012.copyWith(color: AppColor.originalBlack),
-                  ).wrapPaddingBottom(5.h),
-                  Container(
-                    height: 60.h,
-                    width: double.infinity,
-                    child: TextField(
-                      controller: mobile,
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        if (value.length == 10) {
-                          isValid.value = true;
-                        } else {
-                          isValid.value = false;
-                        }
-                      },
-                      autofocus: true,
-                      decoration: InputDecoration(
-                          isDense: true,
-                          prefixIcon: Padding(
-                              padding: EdgeInsets.all(15),
-                              child: Text('+91  |  ',
-                                  style: w60016.copyWith(
-                                      color: AppColor.originalBlack))),
-                          fillColor: AppColor.textFieldBG,
-                          filled: true,
-                          hintText: S.of(context).zerohint,
-                          hintStyle: w60016.copyWith(
-                              color: AppColor.originalBlack.withOpacity(0.3)),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.r),
-                              borderSide: BorderSide.none)),
+                    style: w60012.copyWith(
+                        color: AppColor.originalBlack.withOpacity(0.3)),
+                  ).wrapPaddingBottom(10.h),
+                  IntlPhoneField(
+                    controller: mobile,
+                    keyboardType: TextInputType.number,
+                    autofocus: true,
+                    showCountryFlag: false,
+                    showDropdownIcon: false,
+                    disableLengthCheck: true,
+                    onChanged: (value) {
+                      if (value.number.length != 10) {
+                        isValid.value = false;
+                      } else {
+                        isValid.value = true;
+                      }
+                    },
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(10),
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    initialCountryCode: 'IN',
+                    style: w60016.copyWith(
+                      fontFamily: 'fraunces',
+                      color: AppColor.originalBlack,
                     ),
+                    pickerDialogStyle: PickerDialogStyle(),
+                    decoration: InputDecoration(
+                        fillColor: AppColor.textFieldBG,
+                        filled: true,
+                        prefix: Text(
+                          '|   ',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.originalBlack),
+                        ),
+                        hintText: S.of(context).zerohint,
+                        hintStyle: w60016.copyWith(
+                            color: AppColor.originalBlack.withOpacity(0.3)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15.r),
+                            borderSide: BorderSide.none)),
                   ),
                   20.verticalSpace,
                   Text(
@@ -180,17 +183,19 @@ class _TestLoginPageState extends State<TestLoginPage> {
                         .of(context)
                         .byContinuingYouAreAgreeingToOutTermsConditionsPrivacy,
                     textAlign: TextAlign.center,
-                    style: w40012.copyWith(color: AppColor.originalBlack),
-                  ).wrapPaddingSymmetric(horizontal: 15.h, vertical: 15.h),
+                    style: w40012.copyWith(
+                        color: AppColor.originalBlack.withOpacity(0.3)),
+                  ).wrapPaddingSymmetric(horizontal: 15.h, vertical: 25.h),
                   InkWell(
                     onTap: () {
-                      var res = validatePhoneNumber(mobile.text);
-                      showMessage(res);
-                      if (res == 'Success' && isValid.value == true) {
-                        mobile.clear();
-                        sendRequest();
-                        // context.router.push(PartnerDetailsRoute());
-                      }
+                      validatePhoneNumber();
+                      //var res = validatePhoneNumber(mobile.text);
+                      // showMessage(res);
+                      // if (res == 'Success' && isValid.value == true) {
+                      //   mobile.clear();
+                      //   sendRequest();
+                      //   // context.router.push(PartnerDetailsRoute());
+                      // }
                     },
                     child: ValueListenableBuilder(
                       valueListenable: isValid,

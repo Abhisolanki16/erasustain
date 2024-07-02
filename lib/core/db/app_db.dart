@@ -1,5 +1,5 @@
-import 'package:flutter_demo_structure/core/locator/locator.dart';
-import 'package:flutter_demo_structure/data/model/response/user_profile_response.dart';
+import 'package:Erasustain/core/locator/locator.dart';
+import 'package:Erasustain/data/model/response/user_profile_response.dart';
 import 'package:hive/hive.dart';
 
 class AppDB {
@@ -40,10 +40,11 @@ class AppDB {
 
   set cartCount(int update) => setValue("cart_count", update);
 
-  String get apiKey => getValue("apiKey", defaultValue: "iiwGSFvagXiIKne5ESCerA==");
+  String get apiKey =>
+      getValue("apiKey", defaultValue: "iiwGSFvagXiIKne5ESCerA==");
 
   set apiKey(String update) => setValue("apiKey", update);
-  
+
   String get acceptLanguage => getValue("acceptLanguage", defaultValue: "en");
 
   set acceptLanguage(String update) => setValue("acceptLanguage", update);

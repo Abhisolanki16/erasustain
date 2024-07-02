@@ -1,4 +1,4 @@
-import 'package:flutter_demo_structure/generated/l10n.dart';
+import 'package:Erasustain/generated/l10n.dart';
 
 class AppException implements Exception {
   final String? message;
@@ -51,4 +51,3 @@ class NoInternetException extends AppException {
   NoInternetException([String? message])
       : super(message, S.current.noActiveInternetConnection);
 }
-
