@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_structure/data/model/response/user_profile_response.dart';
+import 'package:Erasustain/data/model/response/user_profile_response.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -104,7 +104,7 @@ class SocialLogin {
           AppleIDAuthorizationScopes.fullName,
         ],
         webAuthenticationOptions: WebAuthenticationOptions(
-          clientId: 'com.hyperlink.flutter_demo_structure',
+          clientId: 'com.hyperlink.Erasustain',
           redirectUri: Uri.parse(
             'https://first-ossified-foe.glitch.me/callbacks/sign_in_with_apple',
           ),
@@ -135,7 +135,7 @@ class SocialLogin {
     } else {
       final url = Uri.https('appleid.apple.com', '/auth/authorize', {
         'response_type': 'code id_token',
-        'client_id': 'com.hyperlink.flutter_demo_structure',
+        'client_id': 'com.hyperlink.Erasustain',
         'response_mode': 'form_post',
         'redirect_uri':
             'https://first-ossified-foe.glitch.me/callbacks/sign_in_with_apple',
@@ -164,7 +164,7 @@ class SocialLogin {
 
 /*  {
   "iss": "https://appleid.apple.com",
-  "aud": "com.hyperlink.flutter_demo_structure",
+  "aud": "com.hyperlink.Erasustain",
   "exp": 1614276639,
   "iat": 1614190239,
   "sub": "001966.c1ca87aaabca44368dd8c4fe15cd645f.0745",

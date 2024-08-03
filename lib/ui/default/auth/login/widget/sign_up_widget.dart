@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_structure/generated/assets.dart';
-import 'package:flutter_demo_structure/generated/l10n.dart';
-import 'package:flutter_demo_structure/values/export.dart';
+import 'package:Erasustain/generated/assets.dart';
+import 'package:Erasustain/generated/l10n.dart';
+import 'package:Erasustain/values/export.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SignUpWidget extends StatelessWidget {

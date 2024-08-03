@@ -6,8 +6,8 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_structure/main.dart';
-import 'package:flutter_demo_structure/router/app_router.dart';
+import 'package:Erasustain/main.dart';
+import 'package:Erasustain/router/app_router.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // import 'package:test_3/main.dart';

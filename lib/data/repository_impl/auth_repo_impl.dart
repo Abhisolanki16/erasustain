@@ -1,12 +1,11 @@
-import 'package:flutter_demo_structure/core/api/base_response/base_response.dart';
-import 'package:flutter_demo_structure/data/model/request/login_request_model.dart';
-import 'package:flutter_demo_structure/data/model/request/otp_request_model.dart';
-import 'package:flutter_demo_structure/data/model/response/otp_response.dart';
-import 'package:flutter_demo_structure/data/model/response/social_profile_details.dart';
-import 'package:flutter_demo_structure/data/model/response/user_profile_response.dart';
-import 'package:flutter_demo_structure/data/remote/auth_api.dart';
-import 'package:flutter_demo_structure/data/repository/auth_repo.dart';
-import 'package:flutter_demo_structure/data/model/response/social_profile_response_model.dart';
+import 'package:Erasustain/core/api/base_response/base_response.dart';
+import 'package:Erasustain/data/model/request/login_request_model.dart';
+import 'package:Erasustain/data/model/request/otp_request_model.dart';
+import 'package:Erasustain/data/model/response/otp_response.dart';
+import 'package:Erasustain/data/model/response/social_profile_response.dart';
+import 'package:Erasustain/data/model/response/user_profile_response.dart';
+import 'package:Erasustain/data/remote/auth_api.dart';
+import 'package:Erasustain/data/repository/auth_repo.dart';
 
 import '../../core/locator/locator.dart';
 import '../model/response/log_out_response.dart';
@@ -29,17 +28,17 @@ class AuthRepoImpl extends AuthRepository {
   }
 
   @override
-  Future<OtpResponse> sendOtpRequest(
-      OtpRequestModel otpRequest) async {
+  Future<OtpResponse> sendOtpRequest(OtpRequestModel otpRequest) async {
     final response = await authApi.sendOtpRequest(otpRequest);
     print(response.data);
     return response;
   }
 
   @override
-  Future<SocialProfileDetails> getSocialProfileInfo(
-      Map<String,dynamic> data) async {
-    final response = await authApi.getSocialProfileInfo(data);
+  Future<SocialProfileResponse> getSocialProfileInfo(
+      Map<String, dynamic> data) async {
+    var response = await authApi.getSocialProfileInfo(data);
+    // print(response.message);
     return response;
   }
 }

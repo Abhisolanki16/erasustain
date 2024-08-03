@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_structure/generated/l10n.dart';
+import 'package:Erasustain/generated/l10n.dart';
 
 import '../../router/app_router.dart';
 import '../db/app_db.dart';
@@ -20,7 +20,7 @@ class DioExceptionUtil {
         if (error.error is SocketException) {
           errorDescription =
               S.current.connectionToServerFailedDueToInternetConnection;
-        } else if (error.response!.statusCode ==  -9){
+        } else if (error.response!.statusCode == -9) {
           errorDescription = S.current.noActiveInternetConnection;
         } else {
           errorDescription = S.current.somethingWentWrongPleaseTryAfterSometime;

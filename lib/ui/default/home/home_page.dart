@@ -4,12 +4,12 @@ import 'package:auto_route/auto_route.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_structure/core/db/app_db.dart';
-import 'package:flutter_demo_structure/generated/l10n.dart';
-import 'package:flutter_demo_structure/util/media_picker.dart';
-import 'package:flutter_demo_structure/util/permission_utils.dart';
-import 'package:flutter_demo_structure/values/export.dart';
-import 'package:flutter_demo_structure/widget/media_picker_bottomsheet.dart';
+import 'package:Erasustain/core/db/app_db.dart';
+import 'package:Erasustain/generated/l10n.dart';
+import 'package:Erasustain/util/media_picker.dart';
+import 'package:Erasustain/util/permission_utils.dart';
+import 'package:Erasustain/values/export.dart';
+import 'package:Erasustain/widget/media_picker_bottomsheet.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -176,7 +176,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                 "heyy",
+                  "heyy",
                   style: textBold.copyWith(color: AppColor.primaryColor),
                 ),
               ),

@@ -1,12 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_demo_structure/core/db/app_db.dart';
-import 'package:flutter_demo_structure/core/locator/locator.dart';
-import 'package:flutter_demo_structure/router/app_router.dart';
-import 'package:flutter_demo_structure/values/colors.dart';
-import 'package:flutter_demo_structure/values/extensions/widget_ext.dart';
-import 'package:flutter_demo_structure/values/style.dart';
+import 'package:Erasustain/core/db/app_db.dart';
+import 'package:Erasustain/core/locator/locator.dart';
+import 'package:Erasustain/router/app_router.dart';
+import 'package:Erasustain/values/colors.dart';
+import 'package:Erasustain/values/extensions/widget_ext.dart';
+import 'package:Erasustain/values/style.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 @RoutePage()
@@ -35,16 +35,12 @@ class _TestSplashPageState extends State<TestSplashPage> {
       Duration(seconds: 2),
       () {
         final appDB = locator.get<AppDB>();
-         if(!appDB.isLogin)
-{
+        if (!appDB.isLogin) {
+          locator<AppRouter>().replace(TestLoginRoute());
+        } else {
+          locator<AppRouter>().replace(PartnerDetailsRoute());
+        }
 
-      locator<AppRouter>().replace(TestLoginRoute());
-}
-else{
-      locator<AppRouter>().replace(PartnerDetailsRoute());
-
-}  
-  
         // context.router.push(TestLoginRoute());
       },
     );

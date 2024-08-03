@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_demo_structure/generated/assets.dart';
-import 'package:flutter_demo_structure/values/export.dart';
+import 'package:Erasustain/generated/assets.dart';
+import 'package:Erasustain/values/export.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 //ignore: must_be_immutable

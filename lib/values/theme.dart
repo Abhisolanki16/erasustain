@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_structure/values/colors.dart';
-import 'package:flutter_demo_structure/values/style.dart';
+import 'package:Erasustain/values/colors.dart';
+import 'package:Erasustain/values/style.dart';
 
 final ThemeData appTheme = ThemeData(
   primaryColor: AppColor.primaryColor,

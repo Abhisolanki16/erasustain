@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_structure/values/export.dart';
+import 'package:Erasustain/values/export.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 final TextStyle textThin = TextStyle(
@@ -90,12 +90,13 @@ final TextStyle w70012 = TextStyle(
   fontSize: 12.spMin,
 );
 final TextStyle w70012Black = w70012.copyWith(color: AppColor.originalBlack);
-final TextStyle w70012White = w70012.copyWith(color: AppColor.textBackgroundColor);
+final TextStyle w70012White =
+    w70012.copyWith(color: AppColor.textBackgroundColor);
 final TextStyle w70012Green = w70012.copyWith(color: AppColor.splashGreen);
 final TextStyle w60012Green = w60012.copyWith(color: AppColor.splashGreen);
 final TextStyle w60014Black = w60014.copyWith(color: AppColor.originalBlack);
 final TextStyle w40012Black = w40012.copyWith(color: AppColor.originalBlack);
 final TextStyle w60012Cream = w60012.copyWith(color: AppColor.cream2);
 final TextStyle w60012Cream2 = w60012.copyWith(color: AppColor.cream);
-
-
+final TextStyle w60024Green =
+    w60024.copyWith(color: AppColor.appbarTitle, fontFamily: 'fraunces');

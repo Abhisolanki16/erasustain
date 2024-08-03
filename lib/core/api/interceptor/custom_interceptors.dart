@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_demo_structure/core/locator/locator.dart';
-import 'package:flutter_demo_structure/service/enc_service.dart';
+import 'package:Erasustain/core/locator/locator.dart';
+import 'package:Erasustain/service/enc_service.dart';
 
 import '../../db/app_db.dart';
 

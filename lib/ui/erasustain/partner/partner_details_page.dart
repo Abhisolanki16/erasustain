@@ -1,27 +1,23 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:Erasustain/router/app_router.dart';
+import 'package:Erasustain/ui/erasustain/partner/widgets/sos_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_demo_structure/core/db/app_db.dart';
-import 'package:flutter_demo_structure/data/model/response/social_profile_response_model.dart';
-import 'package:flutter_demo_structure/data/repository_impl/auth_repo_impl.dart';
-import 'package:flutter_demo_structure/generated/assets.dart';
-import 'package:flutter_demo_structure/generated/l10n.dart';
-import 'package:flutter_demo_structure/router/app_router.dart';
-import 'package:flutter_demo_structure/ui/default/auth/store/auth_store.dart';
-import 'package:flutter_demo_structure/ui/erasustain/login/store/otp_store.dart';
-import 'package:flutter_demo_structure/ui/erasustain/partner/store/social_profile_store.dart';
-import 'package:flutter_demo_structure/ui/erasustain/partner/widgets/button_with_icon_widget.dart';
-import 'package:flutter_demo_structure/ui/erasustain/partner/widgets/horizontal_list_widget.dart';
-import 'package:flutter_demo_structure/ui/erasustain/partner/widgets/organization_intro_widget.dart';
-import 'package:flutter_demo_structure/ui/erasustain/partner/widgets/social_media_buttons_widget.dart';
-import 'package:flutter_demo_structure/ui/erasustain/partner/widgets/updates_card_widget.dart';
-import 'package:flutter_demo_structure/values/export.dart';
-import 'package:flutter_demo_structure/values/extensions/widget_ext.dart';
-import 'package:flutter_demo_structure/widget/show_message.dart';
+import 'package:Erasustain/core/db/app_db.dart';
+import 'package:Erasustain/data/repository_impl/auth_repo_impl.dart';
+import 'package:Erasustain/generated/assets.dart';
+import 'package:Erasustain/generated/l10n.dart';
+import 'package:Erasustain/ui/erasustain/partner/store/social_profile_store.dart';
+import 'package:Erasustain/ui/erasustain/partner/widgets/button_with_icon_widget.dart';
+import 'package:Erasustain/ui/erasustain/partner/widgets/horizontal_list_widget.dart';
+import 'package:Erasustain/ui/erasustain/partner/widgets/organization_intro_widget.dart';
+import 'package:Erasustain/ui/erasustain/partner/widgets/social_media_buttons_widget.dart';
+import 'package:Erasustain/ui/erasustain/partner/widgets/updates_card_widget.dart';
+import 'package:Erasustain/values/export.dart';
+import 'package:Erasustain/values/extensions/widget_ext.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 
 @RoutePage()
@@ -32,19 +28,24 @@ class PartnerDetailsPage extends StatefulWidget {
 
 class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
   List<ReactionDisposer>? _disposer;
+  ValueNotifier<bool> isCommitted = ValueNotifier<bool>(false);
+  ValueNotifier<bool> isFollowed = ValueNotifier<bool>(false);
+  ValueNotifier<bool> isGotCertificate = ValueNotifier<bool>(false);
+  ValueNotifier<bool> isVolunteer = ValueNotifier<bool>(false);
+  ValueNotifier<bool> viewCampaign = ValueNotifier<bool>(false);
 
   @override
   void initState() {
     super.initState();
     statusBarSetting();
-    // getSocialProfileData();
+    getSocialProfileData();
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   getSocialProfileData();
-  // }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    addDisposer();
+  }
 
   void statusBarSetting() {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -52,36 +53,36 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
         statusBarIconBrightness: Brightness.dark));
   }
 
-  // void addDisposer() {
-  //   _disposer ??= [
-  //     reaction((_) => socialProfileStore.profileResponse!.value.data, (res) {
-  //       socialProfileStore.profileResponse!.value.data = res;
-  //     }),
-  //     reaction((_) => socialProfileStore.errorMsg, (String? error) {
-  //       if (error != null && error.isNotEmpty) {
-  //         socialProfileStore.errorMsg = error;
-  //         if (ScaffoldMessenger.maybeOf(context) != null) {
-  //           ScaffoldMessenger.of(context)
-  //               .showSnackBar(SnackBar(content: Text(error)));
-  //         }
-  //       }
-  //     })
-  //   ];
-  // }
+  void addDisposer() {
+    _disposer ??= [
+      reaction((_) => socialProfileStore.profileResponse, (res) {
+        if (res != null) {
+          socialProfileStore.profileResponse = res;
+        } else {
+          print('response null');
+        }
+      }),
+      reaction((_) => socialProfileStore.errorMsg, (String? error) {
+        if (error != null) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(error)));
+        }
+      })
+    ];
+  }
 
-  // removeDisposer() {
-  //   if (_disposer != null) {
-  //     for (var element in _disposer!) {
-  //       element.reaction.dispose();
-  //     }
-  //   }
-  // }
+  void removeDisposer() {
+    if (_disposer == null) return;
+    for (final element in _disposer!) {
+      element.reaction.dispose();
+    }
+  }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   removeDisposer();
-  // }
+  @override
+  void dispose() {
+    super.dispose();
+    removeDisposer();
+  }
 
   final margin = EdgeInsets.symmetric(vertical: 15.h);
   final decoration = BoxDecoration(borderRadius: BorderRadius.circular(10.r));
@@ -92,11 +93,12 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
   }
 
   getSocialProfileData() async {
-    if (appDB.token.isNotEmpty || appDB.token != '') {
+    try {
       var data = Map.of({"social_profile_id": "214"});
-      await authRepo.getSocialProfileInfo(data);
+      socialProfileStore.getSocialProfileInfo(data);
+    } catch (e) {
+      print(e.toString());
     }
-    // print(socialProfileStore.profileResponse!.message);
   }
 
   String formattedDate = '';
@@ -104,35 +106,19 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: FutureBuilder(
-      future: getSocialProfileData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
+    return SafeArea(child: Observer(
+      builder: (_) {
+        if (socialProfileStore.isLoading) {
+          return Center(child: CircularProgressIndicator());
+        } else if (socialProfileStore.profileResponse?.data != null) {
+          return _buildBody(context, socialProfileStore.profileResponse!.data);
         } else {
-          var data = socialProfileStore.profileResponse!.data;
-          print(otpResponseStore.otpResponse!.data.userDetail.token);
-          return _buildBody(context, data);
+          return Center(
+            child: Text('No data'),
+          );
         }
       },
-    )
-        //  Observer(
-        //   builder: (context) {
-        //     if (socialProfileStore.isLoading! == true) {
-        //       return Center(
-        //         child: CircularProgressIndicator(),
-        //       );
-        //     } else if (socialProfileStore.profileResponse!.data != '') {
-        //       return SafeArea(child: _buildBody(context));
-        //     } else {
-        //       return Text('No data');
-        //     }
-        //   },
-        // )
-        );
+    ));
   }
 
   Scaffold _buildBody(BuildContext context, var data) {
@@ -145,57 +131,91 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
         elevation: 0,
         title: Text(
           S.of(context).socialPartner,
-          style: w60024.copyWith(color: AppColor.appbarTitle),
+          style: w60024Green,
         ).wrapPaddingLeft(15.w),
         actions: [
-          Row(
-            children: [
-              InkWell(
-                onTap: () {
-                  authStore.logout().then(
-                    (value) {
-                      if (authStore.logoutResponse!.code == '1') {
-                        appDB.logout();
-                        context.router.pushAndPopUntil(
-                          TestLoginRoute(),
-                          predicate: (route) => false,
-                        );
-                      } else {
-                        showMessage('Logout failed');
-                      }
-                    },
-                  );
-                },
-                child: Container(
-                    height: 32.h,
-                    width: 30.w,
-                    margin: EdgeInsets.only(right: 10.w),
-                    child: CachedNetworkImage(
-                      imageUrl: data.profileImage,
-                      height: 32.h,
-                      width: 30.w,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                      errorWidget: (context, url, error) => Center(
-                        child: Icon(Icons.error),
-                      ),
-                    )),
-              ),
-            ],
-          ),
           Container(
-              height: 32.h,
-              width: 32.w,
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: Ink(
+                child: InkWell(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Text('Are you sure want to logout ?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                context.router.maybePop();
+                              },
+                              child: Text(
+                                'No',
+                                style: w70012Green,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                await authRepo.logout().then((value) {
+                                  context.router.replace((TestLoginRoute()));
+                                  appDB.logout();
+                                });
+                              },
+                              child: Text(
+                                'Yes',
+                                style: w70012Green,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Image.asset(
+                    Assets.assetsImagePowerof,
+                    height: 32.h,
+                    width: 32.w,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          10.horizontalSpace,
+          Container(
+              // height: 32.h,
+              // width: 32.w,
+              clipBehavior: Clip.hardEdge,
               margin: EdgeInsets.only(right: 30.w),
-              child: data.isVerify == 'verified'
-                  ? Image.asset(
-                      'assets/image/circle1.png',
-                      height: 32.h,
-                      width: 32.w,
-                    )
-                  : Container())
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              child:
+                  // data.isVerify == 'verified'?
+                  Material(
+                color: Colors.transparent,
+                child: Ink(
+                  child: InkWell(
+                      child: CachedNetworkImage(
+                    height: 32.h,
+                    width: 32.w,
+                    fit: BoxFit.cover,
+                    imageUrl: data.profileImage,
+                    placeholder: (context, url) => Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                    errorWidget: (context, url, error) => Center(
+                      child: Image.asset(Assets.assetsImageCircle1),
+                    ),
+                  )),
+                ),
+              )
+              // : Container()
+              )
         ],
       ),
       body: SingleChildScrollView(
@@ -206,15 +226,15 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      height: 192.h,
-                      width: double.infinity,
-                      margin: EdgeInsets.only(top: 10.h),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
+                    10.verticalSpace,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10.r),
                       child: CachedNetworkImage(
                         imageUrl: data.coverImage,
+                        height: 190.h,
+                        width: double.infinity,
+                        // imageUrl:
+                        //     "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg",
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Center(
                           child: CircularProgressIndicator(),
@@ -224,46 +244,77 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
                         ),
                       ),
                     ),
+                    30.verticalSpace,
                     OrganizationIntro(
-                      img: data.idImage,
+                      img: data.idImage ??
+                          "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg",
                       orgName: data.name,
-                      mutuals: '12 mutuals including Karan',
+                      // img:
+                      //     "https://hatrabbits.com/wp-content/uploads/2017/01/random.jpg",
+                      // orgName: 'AAAAA',
+                      mutuals: data.mutualFriend ?? '12',
                       about:
                           'We are a multinational NPO working towards the welfare of the society',
                     ),
+                    30.verticalSpace,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ButtonWithIcon(
-                            onTap: () {},
-                            text: data.socialCommit
-                                ? 'Uncommit'
-                                : S.of(context).committed,
-                            textColor: AppColor.textBackgroundColor,
-                            icon: Assets.assetsImageCheck,
-                            iconHeight: 24.h,
-                            iconWidth: 24.w,
-                            width: 160.w,
-                            style: w70012White,
-                            buttonColor: AppColor.splashGreen,
-                            margin: margin),
-                        ButtonWithIcon(
-                            onTap: () {},
-                            text: data.socialFollow
-                                ? "Unfollow"
-                                : S.of(context).followed,
-                            textColor: AppColor.textBackgroundColor,
-                            icon: Assets.assetsImageCheck,
-                            iconHeight: 24.h,
-                            iconWidth: 24.w,
-                            width: 160.w,
-                            style: w70012Green,
-                            buttonColor: AppColor.splashGreen.withOpacity(0.15),
-                            margin: margin),
+                        ValueListenableBuilder(
+                          valueListenable: isCommitted,
+                          builder: (context, value, child) => ButtonWithIcon(
+                              onTap: () {
+                                isCommitted.value = !isCommitted.value;
+                              },
+                              text:
+                                  // data.socialCommit?
+                                  //      'Uncommit':
+                                  value ? 'Committed' : 'Commit',
+                              textColor: value
+                                  ? AppColor.textBackgroundColor
+                                  : AppColor.splashGreen,
+                              icon: value
+                                  ? Assets.assetsImageCheck
+                                  : Assets.assetsImageCheckgreen,
+                              iconHeight: 16.h,
+                              iconWidth: 16.w,
+                              width: 160.w,
+                              style: value ? w70012White : w70012Green,
+                              buttonColor: value
+                                  ? AppColor.splashGreen
+                                  : AppColor.splashGreen.withOpacity(0.15),
+                              margin: EdgeInsets.symmetric(vertical: 0)),
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable: isFollowed,
+                          builder: (context, value, child) => ButtonWithIcon(
+                              onTap: () {
+                                isFollowed.value = !isFollowed.value;
+                              },
+                              text: value ? S.of(context).followed : 'Follow',
+                              // text: data.socialFollow
+                              //     ? "Unfollow"
+                              //     : S.of(context).followed,
+                              textColor: value
+                                  ? AppColor.textBackgroundColor
+                                  : AppColor.splashGreen,
+                              icon: value
+                                  ? Assets.assetsImageCheck
+                                  : Assets.assetsImagePersonout,
+                              iconHeight: 18.h,
+                              iconWidth: 18.w,
+                              width: 160.w,
+                              style: value ? w70012White : w70012Green,
+                              buttonColor: value
+                                  ? AppColor.splashGreen
+                                  : AppColor.splashGreen.withOpacity(0.15),
+                              margin: EdgeInsets.symmetric(vertical: 0)),
+                        ),
                       ],
                     ),
+                    30.verticalSpace,
                     Container(
-                      margin: EdgeInsets.symmetric(vertical: 15.h),
+                      // margin: EdgeInsets.symmetric(vertical: 15.h),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -271,95 +322,183 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
                               data.totalCommitted.toString(), 'committed'),
                           _buildCountText(
                               data.totalFollowers.toString(), 'followers'),
+                          // _buildCountText('2222', 'committed'),
+                          // _buildCountText('3222', 'followers'),
                           SocialMediaButton(onTap: () {
                             _buildBottomSheet(context, data);
                           })
                         ],
                       ),
                     ),
-                    ButtonWithIcon(
-                            onTap: () {},
-                            text: 'Get Certificate',
-                            textColor: AppColor.splashGreen,
-                            icon: Assets.assetsImageCheckgreen,
-                            iconHeight: 9.h,
-                            iconWidth: 12.w,
-                            width: double.maxFinite,
-                            style: w70012Green,
-                            buttonColor: AppColor.splashGreen.withOpacity(0.15),
-                            margin: margin)
-                        .wrapPaddingVertical(3.h),
-                    ButtonWithIcon(
-                            onTap: () {},
-                            text: 'Volunteer',
-                            textColor: AppColor.splashGreen,
-                            icon: Assets.assetsImagePersonout,
-                            iconHeight: 15.h,
-                            iconWidth: 15.w,
-                            width: double.maxFinite,
-                            style: w70012Green,
-                            buttonColor: AppColor.splashGreen.withOpacity(0.15),
-                            margin: margin)
-                        .wrapPaddingVertical(3.h),
+                    30.verticalSpace,
+                    ValueListenableBuilder(
+                      valueListenable: isGotCertificate,
+                      builder: (context, value, child) => ButtonWithIcon(
+                          onTap: () {
+                            isGotCertificate.value = !isGotCertificate.value;
+                          },
+                          text: 'Get Certificate',
+                          textColor: value
+                              ? AppColor.textBackgroundColor
+                              : AppColor.splashGreen,
+                          icon: value
+                              ? Assets.assetsImageCheck
+                              : Assets.assetsImageCheckgreen,
+                          iconHeight: 9.h,
+                          iconWidth: 12.w,
+                          width: double.maxFinite,
+                          style: value ? w70012White : w70012Green,
+                          buttonColor: value
+                              ? AppColor.splashGreen
+                              : AppColor.splashGreen.withOpacity(0.15),
+                          margin: EdgeInsets.symmetric(vertical: 0)),
+                    ),
+                    30.verticalSpace,
+                    ValueListenableBuilder(
+                      valueListenable: isVolunteer,
+                      builder: (context, value, child) => ButtonWithIcon(
+                          onTap: () {
+                            isVolunteer.value = !isVolunteer.value;
+                          },
+                          text: 'Volunteer',
+                          textColor: value
+                              ? AppColor.textBackgroundColor
+                              : AppColor.splashGreen,
+                          icon: value
+                              ? Assets.assetsImageCheck
+                              : Assets.assetsImagePersonout,
+                          iconHeight: 15.h,
+                          iconWidth: 15.w,
+                          width: double.maxFinite,
+                          style: value ? w70012White : w70012Green,
+                          buttonColor: value
+                              ? AppColor.splashGreen
+                              : AppColor.splashGreen.withOpacity(0.15),
+                          margin: EdgeInsets.symmetric(vertical: 0)),
+                    ),
+                    30.verticalSpace,
                     HorizontalList(
                         title: 'Celebrity Ambassadors', list: data.celebrity),
-                    data.topVolunteer == null
-                        ? Container()
-                        : _buildTopVolunteer('Karan Chawla')
+                    30.verticalSpace,
+                    _buildTopVolunteer(data.topVolunteer ?? 'Karan Chawla')
+                    // data.topVolunteer == null
+                    //     ? Container()
+                    //     : _buildTopVolunteer('Karan Chawla')
                   ]),
             ),
             Container(
-                padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h),
-                decoration: BoxDecoration(
-                  color: AppColor.cream2,
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: ListView.builder(
-                    itemCount: 2,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      var campaignData = data.normalCampaignData;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Updates', style: w60012Cream2),
-                          UpdatesCard(
-                              imgUrl:
-                                  campaignData.campaignMediaList[index].image,
-                              campaignTitle: campaignData.campaignName,
-                              discription: campaignData.discription,
-                              country: campaignData.country,
-                              endDate: campaignData.endDate,
-                              goalAmount:
-                                  campaignData.needAmountRaised.toString(),
-                              interested: campaignData.intrested.toString(),
-                              raisedAmount: campaignData.spentAmount,
-                              startDate: campaignData.startDate,
-                              totParticipated:
-                                  campaignData.totalParticipated.toString()),
-                          ButtonWithIcon(
-                              onTap: () {},
-                              text: 'View All Campaign',
-                              textColor: AppColor.splashGreen,
-                              icon: Assets.assetsImageNext,
-                              iconHeight: 12.h,
-                              iconWidth: 15.w,
-                              width: double.maxFinite,
-                              style: w70012Green,
-                              buttonColor:
-                                  AppColor.splashGreen.withOpacity(0.15),
-                              margin: margin),
-                        ],
-                      );
-                    }))
+              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h),
+              decoration: BoxDecoration(
+                color: Color(0xFFFFF9E3),
+                borderRadius: BorderRadius.circular(30.r),
+              ),
+              child: Column(children: [
+                _buildCampaignsData('Updates', data.normalCampaignData),
+                30.verticalSpace,
+                _buildSosCampaignData("SOS", data.sosCampaignData)
+              ]),
+            )
           ],
         ),
       ),
     );
   }
 
-  Future<dynamic> _buildBottomSheet(BuildContext context, Data data) {
+  Widget _buildCampaignsData(
+    String title,
+    campaignData,
+  ) {
+    return ListView.builder(
+      itemCount: campaignData.campaignMediaList.length,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: w60012Cream2),
+          UpdatesCard(
+              imgUrl: campaignData.campaignMediaList[index].postImage ??
+                  'https://repository-images.githubusercontent.com/362819425/7d89df00-a9be-11eb-8e05-66965511d7fb',
+              campaignTitle: campaignData.campaignName,
+              country: campaignData.country,
+              discription: campaignData.discription,
+              endDate: campaignData.endDate,
+              goalAmount: campaignData.needAmountRaised.toString(),
+              interested: campaignData.intrested.toString(),
+              raisedAmount: campaignData.spentAmount,
+              startDate: campaignData.startDate,
+              totParticipated: campaignData.totalParticipated.toString()),
+          ValueListenableBuilder(
+            valueListenable: viewCampaign,
+            builder: (context, value, child) => ButtonWithIcon(
+                onTap: () {
+                  viewCampaign.value = !viewCampaign.value;
+                },
+                text: 'View All Campaign',
+                textColor: AppColor.splashGreen,
+                icon: Assets.assetsImageNext,
+                iconHeight: 12.h,
+                iconWidth: 15.w,
+                width: double.maxFinite,
+                style: value ? w70012White : w70012Green,
+                buttonColor: value
+                    ? AppColor.splashGreen
+                    : AppColor.splashGreen.withOpacity(0.15),
+                margin: EdgeInsets.all(0)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSosCampaignData(
+    String title,
+    campaignData,
+  ) {
+    return ListView.builder(
+      itemCount: campaignData.campaignMediaList.length,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: w60012Cream2),
+          SosCard(
+              imgUrl: campaignData.campaignMediaList[index].postImage ??
+                  'https://repository-images.githubusercontent.com/362819425/7d89df00-a9be-11eb-8e05-66965511d7fb',
+              campaignTitle: campaignData.campaignName,
+              country: campaignData.country,
+              discription: campaignData.discription,
+              endDate: campaignData.endDate,
+              goalAmount: campaignData.needAmountRaised.toString(),
+              interested: campaignData.intrested.toString(),
+              raisedAmount: campaignData.spentAmount,
+              startDate: campaignData.startDate,
+              totParticipated: campaignData.totalParticipated.toString()),
+          ValueListenableBuilder(
+            valueListenable: viewCampaign,
+            builder: (context, value, child) => ButtonWithIcon(
+                onTap: () {
+                  viewCampaign.value = !viewCampaign.value;
+                },
+                text: 'View All ${title}',
+                textColor: AppColor.splashGreen,
+                icon: Assets.assetsImageNext,
+                iconHeight: 12.h,
+                iconWidth: 15.w,
+                width: double.maxFinite,
+                style: value ? w70012White : w70012Green,
+                buttonColor: value
+                    ? AppColor.splashGreen
+                    : AppColor.splashGreen.withOpacity(0.15),
+                margin: EdgeInsets.all(0)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<dynamic> _buildBottomSheet(BuildContext context, var data) {
     return showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -367,7 +506,7 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
       backgroundColor: AppColor.textBackgroundColor,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.r), topRight: Radius.circular(20.r))),
+              topLeft: Radius.circular(50.r), topRight: Radius.circular(50.r))),
       builder: (context) => Container(
         decoration: boxDecoration(20.r, AppColor.textBackgroundColor),
         padding: EdgeInsets.all(30.w),
@@ -417,7 +556,8 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
             ),
             Text(
               subTitle,
-              style: w40012Black,
+              style: w40012Black.copyWith(
+                  color: AppColor.originalBlack.withOpacity(0.5)),
             ).wrapPaddingOnly(left: 15.w, top: 7.h),
           ],
         )
@@ -428,78 +568,50 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
   Container _buildTopVolunteer(String name) {
     return Container(
       padding: EdgeInsets.all(16.w),
-      margin: EdgeInsets.symmetric(vertical: 15.h),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.r), color: AppColor.lessWhite),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             'Top Volunteer',
-            style: w40012Black,
+            style:
+                w40012.copyWith(color: AppColor.originalBlack.withOpacity(0.5)),
           ),
+          Spacer(),
           Expanded(
               child: Text(
             name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: w60014Black,
-          ).wrapPaddingLeft(10.w))
+          ))
         ],
       ),
     );
   }
 
-  Container _buildCountText(String count, String text) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.r),
-        color: AppColor.lessWhite,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            count,
-            style: w60014Black,
-          ),
-          Text(
-            text,
-            style: w40012Black,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildButton(
-      void Function()? onTap,
-      String text,
-      Color textColor,
-      String icon,
-      double iconHeight,
-      double iconWidth,
-      double width,
-      TextStyle style,
-      Color buttonColor) {
+  Widget _buildCountText(String count, String text) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {},
       child: Container(
-        height: 38.h,
-        width: width,
-        margin: margin,
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         decoration: BoxDecoration(
-            color: buttonColor, borderRadius: BorderRadius.circular(15.r)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          borderRadius: BorderRadius.circular(10.r),
+          color: AppColor.lessWhite,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(text, style: style),
-            Container(
-              margin: EdgeInsets.only(left: 5.w),
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Image.asset(icon, height: iconHeight, width: iconWidth),
-            )
+            Text(
+              count,
+              style: w60014Black,
+            ),
+            5.verticalSpace,
+            Text(
+              text,
+              style: w40012.copyWith(
+                  color: AppColor.originalBlack.withOpacity(0.5)),
+            ),
           ],
         ),
       ),
